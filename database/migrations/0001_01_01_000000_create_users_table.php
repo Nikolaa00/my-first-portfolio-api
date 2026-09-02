@@ -1,7 +1,9 @@
 <?php
 
+use App\Enums\UserRole;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,11 +17,13 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->string('role')->default('user');
             $table->timestamps();
         });
+
+        $roleValues = $this->enumValues(UserRole::cases());
+        DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('{$roleValues}'))");
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -45,5 +49,13 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+    }
+
+    /**
+     * @param  array<int, UserRole>  $cases
+     */
+    private function enumValues(array $cases): string
+    {
+        return collect($cases)->map->value->implode("', '");
     }
 };
