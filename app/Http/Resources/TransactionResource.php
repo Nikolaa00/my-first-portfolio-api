@@ -2,15 +2,15 @@
 
 namespace App\Http\Resources;
 
-use App\Models\User;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin User */
-class UserResource extends JsonResource
+/** @mixin Transaction */
+class TransactionResource extends JsonResource
 {
     /**
-     * @param  User  $resource
+     * @param  Transaction  $resource
      */
     public function __construct($resource)
     {
@@ -24,9 +24,13 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'role' => $this->role->value,
+            'portfolio_id' => $this->portfolio_id,
+            'asset_id' => $this->asset_id,
+            'type' => $this->type->value,
+            'quantity' => $this->quantity,
+            'price' => $this->price,
+            'price_currency' => $this->price_currency->value,
+            'executed_at' => $this->executed_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

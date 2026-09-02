@@ -1,0 +1,52 @@
+meta {
+  name: Prime Capital API
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Prime Capital API — Bruno collection for all current routes.
+
+  Setup:
+  1. Start Sail: `./vendor/bin/sail up -d` (API at http://localhost/api).
+  2. Migrate & seed: `./vendor/bin/sail artisan migrate --seed`.
+  3. Open this folder in Bruno and select the Local environment.
+  4. Run Login or Register to save a bearer token to {{token}}.
+
+  Recommended test order:
+  1. Health → Database Health
+  2. Auth → Login (test@example.com / password) or Register
+  3. Portfolios → Create → Show → Update → List
+  4. Transactions → Create → Show → Update → List → Delete
+  5. Admin → Admin Login (admin@example.com / password) → List Users
+
+  Environment variables (Local):
+  - baseUrl, token — auth
+  - portfolioId — auto-set after Create Portfolio
+  - transactionId — auto-set after Create Transaction
+  - assetId — default 1 (requires db:seed)
+
+  Rate limits:
+  - auth: 10 req/min per IP — POST /register, POST /login
+  - api: 120 req/min per user — all authenticated routes
+
+  Routes:
+  - GET    /api/health/database
+  - POST   /api/register
+  - POST   /api/login
+  - GET    /api/me
+  - POST   /api/logout
+  - GET    /api/portfolios
+  - POST   /api/portfolios
+  - GET    /api/portfolios/{id}
+  - PUT    /api/portfolios/{id}
+  - DELETE /api/portfolios/{id}
+  - GET    /api/portfolios/{id}/transactions
+  - POST   /api/portfolios/{id}/transactions
+  - GET    /api/transactions/{id}
+  - PUT    /api/transactions/{id}
+  - DELETE /api/transactions/{id}
+  - GET    /api/admin/users (admin only)
+}

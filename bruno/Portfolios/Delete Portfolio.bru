@@ -1,0 +1,25 @@
+meta {
+  name: Delete Portfolio
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/portfolios/{{portfolioId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 204", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

@@ -1,58 +1,319 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Prime Capital API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+REST API for managing investment portfolios, transactions, and user accounts. Built with **Laravel 13**, **PostgreSQL**, **Laravel Sanctum** (Bearer tokens), and **Laravel Sail** (Docker).
 
-## About Laravel
+**Repository:** [github.com/Nikolaa00/my-first-portfolio-api](https://github.com/Nikolaa00/my-first-portfolio-api)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Layer | Technology |
+| --- | --- |
+| Framework | Laravel 13, PHP 8.5 |
+| Database | PostgreSQL 18 |
+| Auth | Laravel Sanctum (API tokens) |
+| Containers | Laravel Sail (Docker Compose) |
+| Testing | PHPUnit |
+| API client | Bruno (`bruno/` collection) |
+| Code style | Laravel Pint |
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Prerequisites
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/)
+- [Composer](https://getcomposer.org/) (optional if you run everything via Sail)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Quick start (Sail)
 
 ```bash
-composer require laravel/boost --dev
+git clone https://github.com/Nikolaa00/my-first-portfolio-api.git
+cd my-first-portfolio-api
 
-php artisan boost:install
+composer install
+
+cp .env.example .env
+php artisan key:generate
+
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate --seed
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+API base URL (Sail default): **http://localhost/api**
 
-## Contributing
+Health check:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+curl http://localhost/api/health/database
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Docker containers
 
-## Security Vulnerabilities
+Defined in `compose.yaml`:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Service | Image | Host port | Purpose |
+| --- | --- | --- | --- |
+| `laravel.test` | `sail-8.5/app` | **80** (API), 5173 (Vite) | Laravel application |
+| `pgsql` | `postgres:18-alpine` | 5432 | PostgreSQL database |
+
+Common Sail commands:
+
+```bash
+./vendor/bin/sail up -d              # Start containers
+./vendor/bin/sail down               # Stop containers
+./vendor/bin/sail artisan migrate    # Run migrations
+./vendor/bin/sail artisan db:seed    # Seed database
+./vendor/bin/sail artisan test       # Run tests
+./vendor/bin/sail shell              # Shell into app container
+```
+
+---
+
+## Environment variables (`.env.example`)
+
+Copy `.env.example` to `.env` before starting the app.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `APP_NAME` | Prime Capital API | Application name |
+| `APP_URL` | http://localhost | Base URL (Sail serves on port 80) |
+| `APP_KEY` | *(empty)* | Generated via `php artisan key:generate` |
+| `APP_DEBUG` | true | Debug mode (set `false` in production) |
+| `DB_CONNECTION` | pgsql | Database driver |
+| `DB_HOST` | pgsql | Docker service name (use `127.0.0.1` without Sail) |
+| `DB_PORT` | 5432 | PostgreSQL port |
+| `DB_DATABASE` | prime_capital_database | Database name |
+| `DB_USERNAME` | sail | Database user |
+| `DB_PASSWORD` | password | Database password |
+
+PHPUnit uses a separate **`testing`** database (configured in `phpunit.xml` and created automatically by Sail's PostgreSQL init script).
+
+---
+
+## Database seeders
+
+Run with:
+
+```bash
+./vendor/bin/sail artisan db:seed
+```
+
+| Seeder | What it creates |
+| --- | --- |
+| `AssetSeeder` | 5 sample assets (AAPL, MSFT, GOOGL, BTC, etc.) |
+| `UserSeeder` | `test@example.com` (user), `admin@example.com` (admin), 3 random users |
+| `PortfolioSeeder` | 2 portfolios per user |
+| `TransactionSeeder` | Sample buy/sell transactions per portfolio |
+
+**Seeded credentials** (password for all: `password`):
+
+| Email | Role |
+| --- | --- |
+| test@example.com | user |
+| admin@example.com | admin |
+
+---
+
+## Factories
+
+Located in `database/factories/`:
+
+| Factory | Model | Notes |
+| --- | --- | --- |
+| `UserFactory` | User | Default password: `password`; `admin()` state |
+| `AssetFactory` | Asset | Random asset from predefined list |
+| `PortfolioFactory` | Portfolio | Links to `UserFactory` by default |
+| `TransactionFactory` | Transaction | Links to portfolio + asset; random buy/sell |
+
+Used in tests and seeders. Example in Tinker:
+
+```bash
+./vendor/bin/sail artisan tinker
+>>> App\Models\Portfolio::factory()->for(App\Models\User::factory())->create();
+```
+
+---
+
+## API routes
+
+All routes are prefixed with `/api`.
+
+### Public
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/health/database` | Database connectivity check |
+| POST | `/register` | Register + receive Bearer token |
+| POST | `/login` | Login + receive Bearer token |
+
+### Authenticated (Bearer token required)
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/me` | Current user profile |
+| POST | `/logout` | Revoke current token |
+| GET | `/portfolios` | List portfolios (own only; admin sees all) |
+| POST | `/portfolios` | Create portfolio |
+| GET | `/portfolios/{id}` | Show portfolio |
+| PUT | `/portfolios/{id}` | Update portfolio |
+| DELETE | `/portfolios/{id}` | Delete portfolio |
+| GET | `/portfolios/{id}/transactions` | List transactions for portfolio |
+| POST | `/portfolios/{id}/transactions` | Create transaction |
+| GET | `/transactions/{id}` | Show transaction (shallow route) |
+| PUT | `/transactions/{id}` | Update transaction |
+| DELETE | `/transactions/{id}` | Delete transaction |
+| GET | `/admin/users` | List all users (**admin only**) |
+
+### Authentication
+
+Send the token on protected routes:
+
+```
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+Login/register return the token in the JSON response body:
+
+```json
+{
+  "data": {
+    "user": { "id": 1, "name": "...", "email": "...", "role": "user" },
+    "token": "1|...",
+    "token_type": "Bearer"
+  }
+}
+```
+
+### Error format
+
+All API errors use a unified JSON shape:
+
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "name": ["The portfolio name is required."]
+  }
+}
+```
+
+Validation responses include `errors`; other errors return `message` only.
+
+### Rate limits
+
+| Limiter | Routes | Limit |
+| --- | --- | --- |
+| `auth` | register, login | 10 requests/min per IP |
+| `api` | All authenticated routes | 120 requests/min per user |
+
+---
+
+## Authorization
+
+- **Policies** enforce ownership: users manage their own portfolios and transactions.
+- **Admins** can access any portfolio and the `/admin/users` endpoint.
+- `$this->authorize()` is called in every controller action.
+
+---
+
+## Bruno API collection
+
+Open the `bruno/` folder in [Bruno](https://www.usebruno.com/).
+
+1. Select the **Local** environment (`baseUrl: http://localhost/api`).
+2. Run **Login** or **Register** to save `{{token}}`.
+3. Run **Create Portfolio** to save `{{portfolioId}}`.
+4. Run **Create Transaction** to save `{{transactionId}}`.
+
+Folders: **Health**, **Auth**, **Portfolios**, **Transactions**, **Admin**.
+
+---
+
+## Testing
+
+```bash
+./vendor/bin/sail artisan test
+# or a single file:
+./vendor/bin/sail artisan test --compact tests/Feature/PortfolioTest.php
+```
+
+| Test file | Coverage |
+| --- | --- |
+| `PortfolioTest` | Portfolio CRUD, ownership, validation, 401/403 |
+| `TransactionTest` | Nested/shallow transaction CRUD, ownership, validation |
+| `AdminTest` | Admin user listing, 403 for regular users |
+| `ApiErrorTest` | Unified error JSON for 401, 403, 404, 422 |
+| `Unit/ExampleTest` | PHPUnit smoke test |
+
+Tests use `RefreshDatabase`, factories, and Sanctum tokens.
+
+Format code before committing:
+
+```bash
+vendor/bin/pint --dirty
+```
+
+---
+
+## Git & GitHub
+
+```bash
+# Clone
+git clone https://github.com/Nikolaa00/my-first-portfolio-api.git
+cd my-first-portfolio-api
+
+# Check status
+git status
+
+# Create a feature branch (recommended)
+git checkout -b feature/my-feature
+
+# Commit
+git add .
+git commit -m "Describe your change"
+
+# Push
+git push -u origin feature/my-feature
+```
+
+**Remote:** `origin` → `https://github.com/Nikolaa00/my-first-portfolio-api.git`  
+**Default branch:** `main`
+
+---
+
+## Project structure
+
+```
+app/
+  Http/
+    Controllers/     # Auth, Portfolio, Transaction, Admin, Health
+    Requests/        # Form validation (Auth, Portfolio, Transaction)
+    Resources/       # JSON API resources
+    Responses/       # ApiErrorResponse (unified errors)
+  Models/            # User, Portfolio, Transaction, Asset
+  Policies/          # Authorization rules
+  Services/          # AuthService
+bootstrap/app.php    # Exception handling, JSON errors for API
+bruno/               # Bruno API collection
+database/
+  factories/         # Test/seed data factories
+  migrations/        # Schema migrations
+  seeders/           # Database seeders
+routes/api.php       # API route definitions
+tests/Feature/       # HTTP feature tests
+compose.yaml         # Sail Docker services
+.env.example         # Environment template
+```
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT

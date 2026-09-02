@@ -2,11 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -28,46 +25,39 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * @throws ValidationException
+     * @return array<string, string>
      */
-    public function authenticate(): void
+    public function messages(): array
     {
-        $this->ensureIsNotRateLimited();
+        return [
+            'email.required' => 'The email address is required.',
+            'email.string' => 'The email address must be a string.',
+            'email.email' => 'The email address must be a valid email address.',
+            'password.required' => 'The password is required.',
+            'password.string' => 'The password must be a string.',
+        ];
+    }
 
-        if (! Auth::attempt($this->only('email', 'password'))) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey());
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'email' => 'email address',
+            'password' => 'password',
+        ];
     }
 
     /**
      * @throws ValidationException
      */
-    public function ensureIsNotRateLimited(): void
+    public function authenticate(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
-            return;
+        if (! Auth::attempt($this->only('email', 'password'))) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
         }
-
-        event(new Lockout($this));
-
-        $seconds = RateLimiter::availableIn($this->throttleKey());
-
-        throw ValidationException::withMessages([
-            'email' => __('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ]);
-    }
-
-    public function throttleKey(): string
-    {
-        return Str::transliterate(Str::lower($this->string('email')->toString()).'|'.$this->ip());
     }
 }

@@ -1,0 +1,45 @@
+meta {
+  name: Create Portfolio
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/portfolios
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Bruno Portfolio",
+    "description": "Created from Bruno",
+    "currency": "EUR"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    bru.setEnvVar("portfolioId", res.getBody().data.id);
+  }
+}
+
+tests {
+  test("returns 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("returns portfolio data", function() {
+    expect(res.getBody().data.name).to.equal("Bruno Portfolio");
+    expect(res.getBody().data.currency).to.equal("EUR");
+  });
+}

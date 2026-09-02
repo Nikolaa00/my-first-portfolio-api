@@ -1,0 +1,39 @@
+meta {
+  name: Update Portfolio
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/portfolios/{{portfolioId}}
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Bruno Portfolio Updated",
+    "description": "Updated from Bruno",
+    "currency": "USD"
+  }
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("returns updated portfolio", function() {
+    expect(res.getBody().data.name).to.equal("Bruno Portfolio Updated");
+    expect(res.getBody().data.currency).to.equal("USD");
+  });
+}

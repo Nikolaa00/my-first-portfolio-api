@@ -1,0 +1,20 @@
+vars {
+  baseUrl: http://localhost/api
+  token:
+  portfolioId:
+  transactionId:
+  assetId: 1
+}
+
+docs {
+  Local development environment (Laravel Sail).
+
+  baseUrl       — API prefix (Sail default: http://localhost/api)
+  token         — set automatically after Login or Register
+  portfolioId   — set automatically after Create Portfolio
+  transactionId — set automatically after Create Transaction
+  assetId       — seeded asset ID (default: 1, run db:seed first)
+
+  If you use `php artisan serve` instead of Sail, set baseUrl to:
+  http://localhost:8000/api
+}

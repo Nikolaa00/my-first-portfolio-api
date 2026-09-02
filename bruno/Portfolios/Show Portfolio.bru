@@ -1,0 +1,29 @@
+meta {
+  name: Show Portfolio
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/portfolios/{{portfolioId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("returns portfolio", function() {
+    expect(res.getBody().data.id).to.equal(parseInt(bru.getEnvVar("portfolioId")));
+  });
+}

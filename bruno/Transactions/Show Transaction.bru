@@ -1,0 +1,29 @@
+meta {
+  name: Show Transaction
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/transactions/{{transactionId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("returns transaction", function() {
+    expect(res.getBody().data.id).to.equal(parseInt(bru.getEnvVar("transactionId")));
+  });
+}

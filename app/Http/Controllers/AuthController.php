@@ -6,6 +6,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\AuthTokenResource;
 use App\Http\Resources\UserResource;
+use App\Http\Responses\ApiErrorResponse;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,12 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function __construct(private AuthService $authService) {}
+    private AuthService $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
 
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -42,9 +48,7 @@ class AuthController extends Controller
         $bearerToken = $request->bearerToken();
 
         if ($bearerToken === null) {
-            return response()->json([
-                'message' => 'Bearer token is required.',
-            ], 400);
+            return ApiErrorResponse::make('Bearer token is required.', 400);
         }
 
         $this->authService->logout($bearerToken);

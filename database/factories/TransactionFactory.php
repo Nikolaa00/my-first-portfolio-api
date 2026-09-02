@@ -27,7 +27,7 @@ class TransactionFactory extends Factory
             'type' => fake()->randomElement([TransactionType::Buy, TransactionType::Sell]),
             'quantity' => fake()->randomFloat(4, 0.0001, 100),
             'price' => fake()->randomFloat(2, 1, 10000),
-            'price_currency' => fake()->randomElement(Currency::Usd.Currency::Eur),
+            'price_currency' => fake()->randomElement([Currency::Usd, Currency::Eur]),
             'executed_at' => fake()->dateTimeBetween('-1 year'),
         ];
     }
