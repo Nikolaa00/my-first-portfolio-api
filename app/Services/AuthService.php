@@ -40,13 +40,9 @@ class AuthService
         ];
     }
 
-    public function logout(User $user): void
+    public function logout(string $bearerToken): void
     {
-        $token = $user->currentAccessToken();
-
-        if ($token instanceof PersonalAccessToken) {
-            $token->delete();
-        }
+        PersonalAccessToken::findToken($bearerToken)?->delete();
     }
 
     private function createToken(User $user): string
