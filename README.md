@@ -314,6 +314,29 @@ compose.yaml         # Sail Docker services
 
 ---
 
+## Laravel Boost (AI tooling)
+
+This project uses [Laravel Boost](https://laravel.com/docs/boost) for AI agent guidelines, skills, and MCP.
+
+| File | Purpose |
+| --- | --- |
+| `boost.json` | Boost configuration (agents, skills, Sail MCP) |
+| `AGENTS.md` / `CLAUDE.md` | AI guidelines (auto-updated) |
+| `.ai/rules/` | Project-specific rules for agents |
+| `.cursor/mcp.json` | Cursor MCP — runs via Sail |
+
+**Update Boost after package changes:**
+
+```bash
+php artisan boost:update --no-interaction
+```
+
+**Installed skills:** `infer-conventions`, `laravel-best-practices`, `testing-best-practices`, `tailwindcss-development`
+
+**MCP note:** Boost MCP runs through Sail (`vendor/bin/sail artisan boost:mcp`) so it uses the same PHP/PostgreSQL environment as the app. Ensure containers are running before using Boost tools in Cursor.
+
+---
+
 ## License
 
 MIT

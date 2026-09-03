@@ -8,5 +8,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | database/** | .ai/rules/database.md |
 | app/Http/** | .ai/rules/http.md |
 | app/Models/** | .ai/rules/models.md |
+| app/Policies/** | .ai/rules/app.md |
 | routes/api.php | .ai/rules/routes.md |
 | tests/** | .ai/rules/tests.md |
+| bootstrap/app.php | .ai/rules/http.md |
